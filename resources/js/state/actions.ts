@@ -1,6 +1,6 @@
 import { ActionType } from './actionType';
 
-export abstract class Action {
+export class Action {
   readonly actionType: ActionType;
 
   constructor(actionType: ActionType) {
