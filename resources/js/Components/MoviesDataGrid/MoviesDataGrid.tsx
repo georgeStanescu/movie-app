@@ -1,6 +1,7 @@
 import { FC } from 'react';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { Movie } from '@/api/models';
+import { MoviesDataGridId } from '@/constants/testIdentifiers';
 
 const columns: GridColDef[] = [
   { field: 'Poster', headerName: 'Poster', width: 100, sortable: false,
@@ -20,7 +21,7 @@ const MoviesDataGrid: FC<MoviesDataGridProps> = ({movies}) => {
 
   return (
     <div style={{ display: 'flex', height: '100%' }}>
-      <div style={{ flexGrow: 1 }}>
+      <div style={{ flexGrow: 1 }} data-testid={MoviesDataGridId}>
         <DataGrid rows={rows} columns={columns} autoHeight={true} />
       </div>
     </div>

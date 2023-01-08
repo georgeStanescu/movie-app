@@ -1,5 +1,6 @@
 import { Movie, SearchResponse } from '@/api/models';
 import { MoviesDataGrid } from '@/Components';
+import { MatrixButtonId } from '@/constants/testIdentifiers';
 import { AppContextProvider, appReducer, initialState } from '@/state';
 import { Head } from '@inertiajs/inertia-react';
 import { Button, ButtonGroup, Grid } from '@mui/material';
@@ -27,7 +28,7 @@ export default function Movies() {
             variant="outlined"
             aria-label="outlined button group"
           >
-            <Button onClick={() => fetchMovies('Matrix')}>Query Matrix</Button>
+            <Button data-testid={MatrixButtonId} onClick={() => fetchMovies('Matrix')}>Query Matrix</Button>
             <Button onClick={() => fetchMovies('Matrix Reloaded')}>Query Matrix Reloaded</Button>
             <Button onClick={() => fetchMovies('Matrix Revolutions')}>Query Matrix Revolutions</Button>
           </ButtonGroup>
