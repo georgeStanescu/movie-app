@@ -16,7 +16,7 @@ use Inertia\Inertia;
 |
 */
 
-Route::get('/movies', function () {
+Route::get('/', function () {
     return Inertia::render('Movies', []);
 });
 
@@ -39,4 +39,4 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

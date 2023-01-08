@@ -34,6 +34,12 @@ module.exports = {
       'error',
       'unix'
     ],
+    'max-len': [
+      'error',
+      {
+        'code': 120
+      }
+    ],
     'quotes': [
       'error',
       'single'
