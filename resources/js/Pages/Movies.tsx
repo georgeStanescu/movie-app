@@ -1,15 +1,17 @@
 import { Movie, SearchResponse } from '@/api/models';
 import { MoviesDataGrid } from '@/Components';
 import { MatrixButtonId, MatrixReloadedButtonId, MatrixRevolutionsButtonId } from '@/constants/testIdentifiers';
-import { AppContextProvider, appReducer, initialState } from '@/state';
+import { useAsyncThrow } from '@/errorHandling/useAsyncThrow';
+import { useAppContext } from '@/state';
 import { SetMoviesAction } from '@/state/actions';
 import { Button, ButtonGroup, Grid } from '@mui/material';
 import axios from 'axios';
-import { useReducer, useState } from 'react';
+import { useState } from 'react';
 
 export default function Movies() {
+  const {dispatch} = useAppContext();
   const [movies, setMovies] = useState<Movie[]>([]);
-  const [state, dispatch] = useReducer(appReducer, initialState);
+  const asyncThrow = useAsyncThrow();
 
   const fetchMovies = async (query) => {
     const response = await axios.get<SearchResponse>(`/api/movies?s=${query}`);
@@ -22,26 +24,31 @@ export default function Movies() {
 
   return (
     <>
-      <AppContextProvider state={state} dispatch={dispatch}>
-        <Grid container justifyContent={'center'} direction="column" >
-          <ButtonGroup
-            variant="outlined"
-            aria-label="outlined button group"
-          >
-            <Button
-              data-testid={MatrixButtonId}
-              onClick={() => fetchMovies('Matrix')}>Query Matrix</Button>
-            <Button
-              data-testid={MatrixReloadedButtonId}
-              onClick={() => fetchMovies('Matrix Reloaded')}>Query Matrix Reloaded</Button>
-            <Button
-              data-testid={MatrixRevolutionsButtonId}
-              onClick={() => fetchMovies('Matrix Revolutions')}>Query Matrix Revolutions</Button>
-          </ButtonGroup>
+      <Grid container justifyContent={'center'} direction="column" >
+        <ButtonGroup
+          variant="outlined"
+          aria-label="outlined button group"
+        >
+          <Button
+            data-testid={MatrixButtonId}
+            onClick={() => fetchMovies('Matrix')}>Query Matrix</Button>
+          <Button
+            data-testid={MatrixReloadedButtonId}
+            onClick={() => fetchMovies('Matrix Reloaded')}>Query Matrix Reloaded</Button>
+          <Button
+            data-testid={MatrixRevolutionsButtonId}
+            onClick={() => fetchMovies('Matrix Revolutions')}>Query Matrix Revolutions</Button>
+        </ButtonGroup>
 
-          <MoviesDataGrid movies={movies} />
-        </Grid>
-      </AppContextProvider>
+        <MoviesDataGrid movies={movies} />
+        <ButtonGroup
+          variant="contained"
+          aria-label="outlined button group"
+        >
+          <Button
+            onClick={() => {asyncThrow(new Error('Simulated error'));}}>Simulate Error</Button>
+        </ButtonGroup>
+      </Grid>
     </>
   );
 }
