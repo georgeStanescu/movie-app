@@ -1,7 +1,8 @@
 import { FC } from 'react';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { Movie } from '@/api/models';
-import { MoviesDataGridId } from '@/constants/testIdentifiers';
+import { MoviesGridContainerId } from '@/constants/testIdentifiers';
+import { GridContainer } from './MoviesDataGrid.style';
 
 const columns: GridColDef[] = [
   { field: 'Poster', headerName: 'Poster', width: 100, sortable: false,
@@ -20,11 +21,11 @@ const MoviesDataGrid: FC<MoviesDataGridProps> = ({movies}) => {
   const rows = movies.map(movie => { return { id: movie.imdbID, ...movie }; });
 
   return (
-    <div style={{ display: 'flex', height: '100%' }}>
-      <div style={{ flexGrow: 1 }} data-testid={MoviesDataGridId}>
+    <GridContainer data-testid={MoviesGridContainerId}>
+      <div style={{ flexGrow: 1 }} >
         <DataGrid rows={rows} columns={columns} autoHeight={true} />
       </div>
-    </div>
+    </GridContainer>
   );
 };
 

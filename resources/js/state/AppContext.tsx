@@ -8,6 +8,7 @@ interface AppContextProps {
   }
 
 export const AppContext = createContext<AppContextProps>({state: initialState, dispatch: () => {} });
+AppContext.displayName = 'MoviesAppContext';
 
 interface AppContextProviderProps extends AppContextProps {
     children: ReactNode;

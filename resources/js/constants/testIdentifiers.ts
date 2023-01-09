@@ -1,2 +1,4 @@
 export const MatrixButtonId = 'matrix-button';
-export const MoviesDataGridId = 'movies-data-grid';
+export const MatrixReloadedButtonId = 'matrix-reloaded-button';
+export const MatrixRevolutionsButtonId = 'matrix-revolutions-button';
+export const MoviesGridContainerId = 'movies-grid-container';

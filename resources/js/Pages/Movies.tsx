@@ -1,8 +1,8 @@
 import { Movie, SearchResponse } from '@/api/models';
 import { MoviesDataGrid } from '@/Components';
-import { MatrixButtonId } from '@/constants/testIdentifiers';
+import { MatrixButtonId, MatrixReloadedButtonId, MatrixRevolutionsButtonId } from '@/constants/testIdentifiers';
 import { AppContextProvider, appReducer, initialState } from '@/state';
-import { Head } from '@inertiajs/inertia-react';
+import { SetMoviesAction } from '@/state/actions';
 import { Button, ButtonGroup, Grid } from '@mui/material';
 import axios from 'axios';
 import { useReducer, useState } from 'react';
@@ -16,21 +16,27 @@ export default function Movies() {
 
     if (response?.data?.Response) {
       setMovies(response.data.Search);
+      dispatch(new SetMoviesAction(response.data.Search));
     }
   };
 
   return (
     <>
       <AppContextProvider state={state} dispatch={dispatch}>
-        <Head title="Movies" />
         <Grid container justifyContent={'center'} direction="column" >
           <ButtonGroup
             variant="outlined"
             aria-label="outlined button group"
           >
-            <Button data-testid={MatrixButtonId} onClick={() => fetchMovies('Matrix')}>Query Matrix</Button>
-            <Button onClick={() => fetchMovies('Matrix Reloaded')}>Query Matrix Reloaded</Button>
-            <Button onClick={() => fetchMovies('Matrix Revolutions')}>Query Matrix Revolutions</Button>
+            <Button
+              data-testid={MatrixButtonId}
+              onClick={() => fetchMovies('Matrix')}>Query Matrix</Button>
+            <Button
+              data-testid={MatrixReloadedButtonId}
+              onClick={() => fetchMovies('Matrix Reloaded')}>Query Matrix Reloaded</Button>
+            <Button
+              data-testid={MatrixRevolutionsButtonId}
+              onClick={() => fetchMovies('Matrix Revolutions')}>Query Matrix Revolutions</Button>
           </ButtonGroup>
 
           <MoviesDataGrid movies={movies} />
