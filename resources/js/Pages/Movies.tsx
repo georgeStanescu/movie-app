@@ -39,7 +39,6 @@ export default function Movies() {
             data-testid={MatrixRevolutionsButtonId}
             onClick={() => fetchMovies('Matrix Revolutions')}>Query Matrix Revolutions</Button>
         </ButtonGroup>
-
         <MoviesDataGrid movies={movies} />
         <ButtonGroup
           variant="contained"
