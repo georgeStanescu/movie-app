@@ -2,14 +2,14 @@ import { FC } from 'react';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { Movie } from '@/api/models';
 import { MoviesGridContainerId } from '@/constants/testIdentifiers';
-import { GridContainer } from './MoviesDataGrid.style';
+import { GridContainer, Poster } from './MoviesDataGrid.style';
 
 const columns: GridColDef[] = [
-  { field: 'Poster', headerName: 'Poster', width: 100, sortable: false,
-    renderCell: (params) => <img src={params.value} />
+  { field: 'Poster', headerName: 'Poster', width: 140, sortable: false,
+    renderCell: (params) => <Poster src={params.value} />
   },
-  { field: 'Title', headerName: 'Title', width: 300 },
-  { field: 'Year', headerName: 'Year', width: 100 },
+  { field: 'Title', headerName: 'Title', flex: 3 },
+  { field: 'Year', headerName: 'Year', flex: 1 },
 ];
 
 export interface MoviesDataGridProps {
@@ -23,7 +23,7 @@ const MoviesDataGrid: FC<MoviesDataGridProps> = ({movies}) => {
   return (
     <GridContainer data-testid={MoviesGridContainerId}>
       <div style={{ flexGrow: 1 }} >
-        <DataGrid rows={rows} columns={columns} autoHeight={true} />
+        <DataGrid rowHeight={180} rows={rows} columns={columns} autoHeight={true} />
       </div>
     </GridContainer>
   );
