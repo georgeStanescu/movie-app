@@ -3,13 +3,18 @@ import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { Movie } from '@/api/models';
 import { MoviesGridContainerId } from '@/constants/testIdentifiers';
 import { GridContainer, Poster } from './MoviesDataGrid.style';
+import { Skeleton, Typography } from '@mui/material';
 
 const columns: GridColDef[] = [
-  { field: 'Poster', headerName: 'Poster', width: 140, sortable: false,
-    renderCell: (params) => <Poster src={params.value} />
+  { field: 'poster', headerName: 'Poster', width: 140, sortable: false,
+    renderCell: ({value}) => value
+      ? <Poster src={value} />
+      : <Typography variant="body1">
+        <Skeleton animation={false} variant="text">(not available)</Skeleton>
+      </Typography>
   },
-  { field: 'Title', headerName: 'Title', flex: 3 },
-  { field: 'Year', headerName: 'Year', flex: 1 },
+  { field: 'title', headerName: 'Title', flex: 3 },
+  { field: 'year', headerName: 'Year', flex: 1 },
 ];
 
 export interface MoviesDataGridProps {
@@ -18,7 +23,7 @@ export interface MoviesDataGridProps {
 
 const MoviesDataGrid: FC<MoviesDataGridProps> = ({movies}) => {
 
-  const rows = movies.map(movie => { return { id: movie.imdbID, ...movie }; });
+  const rows = movies.map(movie => { return { ...movie }; });
 
   return (
     <GridContainer data-testid={MoviesGridContainerId}>

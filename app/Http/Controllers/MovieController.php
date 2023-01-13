@@ -2,7 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Movie;
+use App\Models\Poster;
+use App\Http\Responses\MovieResponse;
+use App\Http\Responses\SearchResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 
 class MovieController extends Controller
 {
@@ -15,8 +20,59 @@ class MovieController extends Controller
     {
         $query = $request->query('s');
 
-        $obj = json_decode('{"Search":[{"Title":"The Matrix","Year":"1999","imdbID":"tt0133093","Type":"movie","Poster":"https://m.media-amazon.com/images/M/MV5BNzQzOTk3OTAtNDQ0Zi00ZTVkLWI0MTEtMDllZjNkYzNjNTc4L2ltYWdlXkEyXkFqcGdeQXVyNjU0OTQ0OTY@._V1_SX300.jpg"},{"Title":"The Matrix Reloaded","Year":"2003","imdbID":"tt0234215","Type":"movie","Poster":"https://m.media-amazon.com/images/M/MV5BODE0MzZhZTgtYzkwYi00YmI5LThlZWYtOWRmNWE5ODk0NzMxXkEyXkFqcGdeQXVyNjU0OTQ0OTY@._V1_SX300.jpg"},{"Title":"The Matrix Revolutions","Year":"2003","imdbID":"tt0242653","Type":"movie","Poster":"https://m.media-amazon.com/images/M/MV5BNzNlZTZjMDctZjYwNi00NzljLWIwN2QtZWZmYmJiYzQ0MTk2XkEyXkFqcGdeQXVyNTAyODkwOQ@@._V1_SX300.jpg"},{"Title":"The Matrix Resurrections","Year":"2021","imdbID":"tt10838180","Type":"movie","Poster":"https://m.media-amazon.com/images/M/MV5BMGJkNDJlZWUtOGM1Ny00YjNkLThiM2QtY2ZjMzQxMTIxNWNmXkEyXkFqcGdeQXVyMDM2NDM2MQ@@._V1_SX300.jpg"},{"Title":"Making The Matrix","Year":"1999","imdbID":"tt0365467","Type":"movie","Poster":"https://m.media-amazon.com/images/M/MV5BZjJjMTg5MTEtMDkwMy00ZjUyLTg5ODYtMmNmY2ZiNGVlZTdjXkEyXkFqcGdeQXVyODA1NjQ0OTY@._V1_SX300.jpg"},{"Title":"The Matrix Revisited","Year":"2001","imdbID":"tt0295432","Type":"movie","Poster":"https://m.media-amazon.com/images/M/MV5BMTkzNjg3NjE4N15BMl5BanBnXkFtZTgwNTc3NTAwNzE@._V1_SX300.jpg"},{"Title":"Enter the Matrix","Year":"2003","imdbID":"tt0277828","Type":"game","Poster":"https://m.media-amazon.com/images/M/MV5BNWM3MDU2MWQtYjdlNC00NDBlLTkyNGMtNjdhYjdlNTdiNTFlXkEyXkFqcGdeQXVyNTEwNDY2MjU@._V1_SX300.jpg"},{"Title":"A Glitch in the Matrix","Year":"2021","imdbID":"tt9847360","Type":"movie","Poster":"https://m.media-amazon.com/images/M/MV5BMWRhNGY3NGQtMDAxMS00YjY2LTgzOTUtZjljZmUyYWQwMGI2XkEyXkFqcGdeQXVyMDM2NDM2MQ@@._V1_SX300.jpg"},{"Title":"The Matrix: Path of Neo","Year":"2005","imdbID":"tt0451118","Type":"game","Poster":"https://m.media-amazon.com/images/M/MV5BZGFiNGU4MjEtODM2ZC00OTg0LThkNmEtZTBlN2FkMmFjOWYzXkEyXkFqcGdeQXVyNTEwNDY2MjU@._V1_SX300.jpg"},{"Title":"Armitage III: Dual Matrix","Year":"2002","imdbID":"tt0303678","Type":"movie","Poster":"https://m.media-amazon.com/images/M/MV5BOTUwOTY3Mjg1MF5BMl5BanBnXkFtZTcwODI2MTAyMQ@@._V1_SX300.jpg"}],"totalResults":"135","Response":"True"}');
+        $response = Http::get('http://www.omdbapi.com', [
+            's' => $query,
+            'apikey' => '720c3666'
+        ]);
 
-        return response()->json($obj);
+        $responseObj = $response->object();
+
+        if ($responseObj->Response != 'True') {
+            return response()->json(new SearchResponse([], 0));
+        }
+
+        $movies = array();
+
+        foreach ($responseObj->Search as $searchItem) {
+            $movie = Movie::firstOrCreate(
+                [
+                    'imdbID' => $searchItem->imdbID,
+                ],
+                [
+                    'title' => $searchItem->Title,
+                    'year' => $searchItem->Year,
+                    'type' => $searchItem->Type,
+                    'imdbID' => $searchItem->imdbID,
+                ]
+            );
+
+            $poster = $movie->poster;
+            $posterUrl = null;
+            if (is_null($poster)) {
+                if (!is_null($searchItem->Poster) && $searchItem->Poster != 'N/A') {
+                    $posterUrl = $searchItem->Poster;
+                    $poster = new Poster([
+                        'url' => $posterUrl
+                    ]);
+
+                    $movie->poster()->save($poster);
+                }
+            } else {
+                $posterUrl = $poster->url;
+            }
+
+            $movieResponse = new MovieResponse(
+                $movie->id,
+                $movie->title,
+                $movie->year,
+                $movie->imdbID,
+                $movie->type,
+                $posterUrl
+            );
+
+            array_push($movies, $movieResponse);
+        }
+
+        return response()->json(new SearchResponse($movies, $responseObj->totalResults));
     }
 }

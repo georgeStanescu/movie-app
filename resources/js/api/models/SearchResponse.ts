@@ -1,8 +1,7 @@
 import { Movie } from './Movie';
 
 export interface SearchResponse {
-    Response: boolean;
-    Search: Movie[];
+    movies: Movie[];
     totalResults: number;
 }
 

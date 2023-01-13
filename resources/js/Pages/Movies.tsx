@@ -16,9 +16,9 @@ export default function Movies() {
   const fetchMovies = async (query) => {
     const response = await axios.get<SearchResponse>(`/api/movies?s=${query}`);
 
-    if (response?.data?.Response) {
-      setMovies(response.data.Search);
-      dispatch(new SetMoviesAction(response.data.Search));
+    if (Array.isArray(response?.data?.movies)) {
+      setMovies(response.data.movies);
+      dispatch(new SetMoviesAction(response.data.movies));
     }
   };
 
