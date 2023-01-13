@@ -2,10 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Movie;
-use App\Models\Poster;
 use App\Http\Responses\MovieResponse;
 use App\Http\Responses\SearchResponse;
+use App\Http\Services\HttpServiceInterface;
 use App\Repositories\MovieRepositoryInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
@@ -13,10 +12,14 @@ use Illuminate\Support\Facades\Http;
 class MovieController extends Controller
 {
     protected MovieRepositoryInterface $movieRepository;
+    protected HttpServiceInterface $httpService;
 
-    public function __construct(MovieRepositoryInterface $movieRepository)
-    {
+    public function __construct(
+        MovieRepositoryInterface $movieRepository,
+        HttpServiceInterface $httpService
+    ) {
         $this->movieRepository = $movieRepository;
+        $this->httpService = $httpService;
     }
 
     /**
@@ -28,24 +31,19 @@ class MovieController extends Controller
     {
         $query = $request->query('s');
 
-        $response = Http::get('http://www.omdbapi.com', [
-            's' => $query,
-            'apikey' => '720c3666'
-        ]);
-
-        $responseObj = $response->object();
+        $responseObj = $this->httpService->fetchMovies($query);
 
         if ($responseObj->Response != 'True') {
             return response()->json(new SearchResponse([], 0));
         }
 
-        $imdbIDs = array();
+        $imdbIDs = [];
         foreach ($responseObj->Search as $searchItem) {
             array_push($imdbIDs, $searchItem->imdbID);
         }
         $dbMoviesMap = $this->movieRepository->getMovies($imdbIDs);
 
-        $responses = array();
+        $responses = [];
         foreach ($responseObj->Search as $searchItem) {
             $dbMovie = $dbMoviesMap[$searchItem->imdbID] ?? null;
             $posterUrl = null;
