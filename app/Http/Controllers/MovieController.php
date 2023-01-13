@@ -6,11 +6,19 @@ use App\Models\Movie;
 use App\Models\Poster;
 use App\Http\Responses\MovieResponse;
 use App\Http\Responses\SearchResponse;
+use App\Repositories\MovieRepositoryInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 
 class MovieController extends Controller
 {
+    protected MovieRepositoryInterface $movieRepository;
+
+    public function __construct(MovieRepositoryInterface $movieRepository)
+    {
+        $this->movieRepository = $movieRepository;
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -31,48 +39,44 @@ class MovieController extends Controller
             return response()->json(new SearchResponse([], 0));
         }
 
-        $movies = array();
-
+        $imdbIDs = array();
         foreach ($responseObj->Search as $searchItem) {
-            $movie = Movie::firstOrCreate(
-                [
-                    'imdbID' => $searchItem->imdbID,
-                ],
-                [
-                    'title' => $searchItem->Title,
-                    'year' => $searchItem->Year,
-                    'type' => $searchItem->Type,
-                    'imdbID' => $searchItem->imdbID,
-                ]
-            );
+            array_push($imdbIDs, $searchItem->imdbID);
+        }
+        $dbMoviesMap = $this->movieRepository->getMovies($imdbIDs);
 
-            $poster = $movie->poster;
+        $responses = array();
+        foreach ($responseObj->Search as $searchItem) {
+            $dbMovie = $dbMoviesMap[$searchItem->imdbID] ?? null;
             $posterUrl = null;
-            if (is_null($poster)) {
+
+            if (is_null($dbMovie)) {
                 if (!is_null($searchItem->Poster) && $searchItem->Poster != 'N/A') {
                     $posterUrl = $searchItem->Poster;
-                    $poster = new Poster([
-                        'url' => $posterUrl
-                    ]);
-
-                    $movie->poster()->save($poster);
                 }
-            } else {
-                $posterUrl = $poster->url;
+                $dbMovie = $this->movieRepository->createMovie(
+                    $searchItem->Title,
+                    $searchItem->Year,
+                    $searchItem->Type,
+                    $searchItem->imdbID,
+                    $posterUrl
+                );
+            } else if (!is_null($dbMovie->poster)) {
+                $posterUrl = $dbMovie->poster->url;
             }
 
             $movieResponse = new MovieResponse(
-                $movie->id,
-                $movie->title,
-                $movie->year,
-                $movie->imdbID,
-                $movie->type,
+                $dbMovie->id,
+                $dbMovie->title,
+                $dbMovie->year,
+                $dbMovie->imdbID,
+                $dbMovie->type,
                 $posterUrl
             );
 
-            array_push($movies, $movieResponse);
+            array_push($responses, $movieResponse);
         }
 
-        return response()->json(new SearchResponse($movies, $responseObj->totalResults));
+        return response()->json(new SearchResponse($responses, $responseObj->totalResults));
     }
 }
