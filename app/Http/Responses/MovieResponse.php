@@ -4,7 +4,6 @@ namespace App\Http\Responses;
 
 class MovieResponse
 {
-    public string $id;
     public string $title;
     public int $year;
     public string $imdbID;
@@ -12,9 +11,8 @@ class MovieResponse
     public ?string $poster;
 
 
-    public function __construct(int $id, string $title, int $year, string $imdbID, string $type, ?string $poster)
+    public function __construct(string $title, int $year, string $imdbID, string $type, ?string $poster)
     {
-        $this->id = $id;
         $this->title = $title;
         $this->year = $year;
         $this->imdbID = $imdbID;

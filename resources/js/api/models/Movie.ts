@@ -1,5 +1,4 @@
 export interface Movie {
-    id: number;
     poster: string;
     title: string;
     type: ContentType;

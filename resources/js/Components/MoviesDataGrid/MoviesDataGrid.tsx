@@ -23,7 +23,7 @@ export interface MoviesDataGridProps {
 
 const MoviesDataGrid: FC<MoviesDataGridProps> = ({movies}) => {
 
-  const rows = movies.map(movie => { return { ...movie }; });
+  const rows = movies.map(movie => { return { id: movie.imdbID, ...movie }; });
 
   return (
     <GridContainer data-testid={MoviesGridContainerId}>

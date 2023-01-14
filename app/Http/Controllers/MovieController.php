@@ -69,7 +69,6 @@ class MovieController extends Controller
             }
 
             $movieResponse = new MovieResponse(
-                $dbMovie->id,
                 $dbMovie->title,
                 $dbMovie->year,
                 $dbMovie->imdbID,
