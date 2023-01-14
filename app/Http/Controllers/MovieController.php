@@ -6,8 +6,8 @@ use App\Http\Responses\MovieResponse;
 use App\Http\Responses\SearchResponse;
 use App\Http\Services\HttpServiceInterface;
 use App\Repositories\MovieRepositoryInterface;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
 
 class MovieController extends Controller
 {
@@ -27,14 +27,19 @@ class MovieController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
+    public function index(Request $request): JsonResponse
     {
         $query = $request->query('s');
+        $emptyResponse = new SearchResponse([], 0);
+
+        if (trim($query) == '') {
+            return new JsonResponse($emptyResponse);
+        }
 
         $responseObj = $this->httpService->fetchMovies($query);
 
         if ($responseObj->Response != 'True') {
-            return response()->json(new SearchResponse([], 0));
+            return new JsonResponse($emptyResponse);
         }
 
         $imdbIDs = [];
@@ -75,6 +80,6 @@ class MovieController extends Controller
             array_push($responses, $movieResponse);
         }
 
-        return response()->json(new SearchResponse($responses, $responseObj->totalResults));
+        return new JsonResponse(new SearchResponse($responses, $responseObj->totalResults));
     }
 }

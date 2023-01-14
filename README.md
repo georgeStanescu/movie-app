@@ -21,4 +21,5 @@ On the back-end part, I've implemented the following tasks:
 - Added migrations to create two tables - `Movies` and `Posters` with the one-to-one relation on the movie ID column.
 - Created a movie repository to handle the DB operations and configured dependency injection for it.
 - Created a separate service to handle the HTTP requests to the `OMDB API` and configured dependency injection for it.
+- Created sample unit tests for the `MovieController`.
 
